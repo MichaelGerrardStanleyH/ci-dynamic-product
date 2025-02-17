@@ -11,7 +11,7 @@ use Config\Redis;
 use Exception;
 use Predis\Client;
 
-class Home extends Controller
+class ProductRest extends Controller
 {
     use ResponseTrait;
     private $db;
@@ -28,6 +28,8 @@ class Home extends Controller
 
     public function index()
     {
+
+
 
         $cacheKey = 'static_products:all';
 
@@ -50,6 +52,7 @@ class Home extends Controller
 
     public function getById($id)
     {
+
         $cacheKey = "static_products:$id";
 
 
@@ -58,7 +61,7 @@ class Home extends Controller
         } else {
             $static_product = $this->staticProductModel->where('product_id', $id)->first();
             if (!$static_product) {
-                throw new FileNotFoundException('User tidak ditemukan');
+                throw new FileNotFoundException('product tidak ditemukan');
             }
             $static_product['dynamic_property'] = $this->dynamicProductModel->where('static_product_id', $static_product['product_id'])->findAll();
             $this->redis->setex($cacheKey, 600, json_encode($static_product));
@@ -69,6 +72,9 @@ class Home extends Controller
 
     public function addDynamicProduct()
     {
+
+
+
 
         $json = $this->request->getJSON();
 
@@ -93,7 +99,6 @@ class Home extends Controller
         $static_product_id = $json->static_product_id;
 
 
-
         $this->dynamicProductModel->save([
             'property_name' => $property_name,
             'property_value' => $property_value,
@@ -105,12 +110,15 @@ class Home extends Controller
         $static_product['dynamic_property'] = $this->dynamicProductModel->where('static_product_id', $static_product['product_id'])->findAll();;
 
         $this->redis->del('static_products:all');
+        $this->redis->del("static_products:$static_product_id");
 
         return $this->response->setJSON($static_product);
     }
 
     public function editDynamicProduct($id)
     {
+
+
 
         $json = $this->request->getJSON();
 
@@ -148,18 +156,41 @@ class Home extends Controller
         $static_product['dynamic_property'] = $this->dynamicProductModel->where('static_product_id', $static_product['product_id'])->findAll();;
 
         $this->redis->del('static_products:all');
-        $this->redis->del("static_products:$id");
+        $this->redis->del("static_products:$static_product_id");
 
 
         return $this->response->setJSON($static_product);
     }
 
+    public function getDynamicProductById($id)
+    {
+
+        $cacheKey = "dynamic_products:$id";
+
+
+        if ($this->redis->exists($cacheKey)) {
+            $dynamic_product = json_decode($this->redis->get($cacheKey), true);
+        } else {
+            $dynamic_product = $this->dynamicProductModel->where('product_id', $id)->first();
+            $this->redis->setex($cacheKey, 600, json_encode($dynamic_product));
+        }
+
+        return $this->response->setJSON($dynamic_product);
+    }
+
     public function deleteDynamicProduct($id)
     {
-        $this->dynamicProductModel->delete($id);
+
+        $dynamic_product = $this->dynamicProductModel->where('product_id', $id)->first();
+        if (!$dynamic_product) {
+            throw new FileNotFoundException('product dynamic tidak ditemukan');
+        }
+        $static_product_id = $dynamic_product['static_product_id'];
 
         $this->redis->del('static_products:all');
-        $this->redis->del("static_products:$id");
+        $this->redis->del("static_products:$static_product_id");
+
+        $this->dynamicProductModel->delete($id);
 
         return $this->response->setJSON('Delete succesfully');
     }
