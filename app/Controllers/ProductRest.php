@@ -241,7 +241,7 @@ class ProductRest extends Controller
         $this->redis->del('static_products:all');
         $this->redis->del("static_products:$static_product_id");
 
-        $this->dynamicProductModel->delete($id);
+        $this->dynamicProductModel->delete($id);    
 
         return $this->response->setJSON('Delete succesfully');
     }
