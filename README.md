@@ -1,68 +1,96 @@
-# CodeIgniter 4 Application Starter
+## CodeIgniter 4 - Product Management Application
 
-## What is CodeIgniter?
+### Config database
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+- database.default.hostname = localhost
+- database.default.database = ci4
+- database.default.username = root
+- database.default.password = 12345
+- database.default.DBDriver = MySQLi
+- database.default.DBPrefix =
+- database.default.port = 3306
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+jika ingin menggunakan konfigurasi sendiri bisa diubah pada file .env
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+### Config redis
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+- redis.default.host = 127.0.0.1
+- redis.default.port = 6379
+- redis.default.password =
+- redis.default.database = 0
 
-## Installation & updates
+jika ingin menggunakan konfigurasi sendiri bisa diubah pada file .env
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### SQL DDL Query
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+CREATE TABLE static_product(
+product_id int AUTO_INCREMENT,
+property_name varchar(255),
+property_value varchar(255),
+PRIMARY KEY(product_id)
+);
 
-## Setup
+CREATE TABLE dynamic_product(
+product_id int AUTO_INCREMENT,
+property_name varchar(255),
+property_value varchar(255),
+static_product_id int,
+PRIMARY KEY(product_id)
+);
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+ALTER TABLE dynamic_product
+ADD CONSTRAINT fk_static_product
+FOREIGN KEY(static_product_id)
+REFERENCES static_product(product_id) ON DELETE CASCADE;
 
-## Important Change with index.php
+### Cara menjalankan aplikasi
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+- Jalankan service backendnya dulu dengan mengetikan <span style="background-color:grey;color:black">php spark serve</span>
+- Jalankan frontendnya yang ada di https://github.com/MichaelGerrardStanleyH/react-dynamic-product-fe dengan mengetikan <span style="background-color:grey;color:black">npm run dev</span>
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+### Feature
 
-**Please** read the user guide for a better explanation of how CI4 works!
+- Get all product
+- Add product
+- Delete product
+- Get all dynamic product by product
+- Add dynamic product
+- Edit dynamic product
+- Delete Dynamic product
 
-## Repository Management
+### Cara menambahkan dynamic property pada product dengan API
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+1. Buat satu produk dengan endpoint <span style="background-color:grey;color:white">http://localhost:8080/products</span> dengan method <span style="color:Yellow">POST</span>, contoh: membuat produk dengan nama Laptop
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+```json
+{
+  "property_name": "name",
+  "property_value": "Laptop"
+}
+```
 
-## Server Requirements
+2. Buat property dinamis produk laptop dengan endpoint <span style="background-color:grey;color:white">http://localhost:8080/dynamic-products</span> dengan method <span style="color:Yellow">POST</span>, contoh: membuat dynamic property price dengan value 12000000 dan serta id dari product laptop(3)
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+```json
+{
+  "property_name": "price",
+  "property_value": "12000000",
+  "static_product_id": 3
+}
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+3.Jika ingin mengakses dynamic property product bisa dengan memanggil product laptop melalui endpoint <span style="background-color:grey;color:white">http://localhost:8080/products/3</span> dengan method <span style="color:Yellow">GET</span> atau dengan memanggil langsung dynamic product yang ingin ditampilkan dengan endpoint <span style="background-color:grey;color:white">http://localhost:8080/dynamic-products/4</span> dengan method <span style="color:Yellow">GET</span>
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+### Git Command
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+- git clone: mengunggah project backend ke local
+- git pull: mengambil perubahan berdasarkan commmitan terbaru
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+### Composer & Codeigniter Command
+
+- composer install: install dependency-dependency yang dibutuhkan
+- php spark serve: menjalankan aplikasi CodeIgniter4
+- jalankan API dengan base_url http://localhost:8080
+
+### Postman Collection
+https://drive.google.com/drive/folders/1JqB53KFr0MmNZ5R5f9jHFs4qpTKHsfdC?usp=sharing
