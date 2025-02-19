@@ -49,7 +49,7 @@ export default function DetailProduct() {
             </tr>
           </thead>
           <tbody>
-            {dynamicProperty.map((obj) => {
+            {(dynamicProperty || []).map((obj) => {
               return (
                 <tr>
                   <td>{i++}</td>

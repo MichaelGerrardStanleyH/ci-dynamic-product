@@ -54,7 +54,7 @@ export default function AddDynamicProduct() {
         </h1>
         <Form onSubmit={onSubmit}>
           <Form.Group className="mb-3" controlId="formBasicPropertyName">
-            <Form.Label>Property Name</Form.Label>
+            <Form.Label style={{ color: "#E7A572" }}>Property Name</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter Property Name"
@@ -63,7 +63,7 @@ export default function AddDynamicProduct() {
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicPropertyValue">
-            <Form.Label>Property Value</Form.Label>
+            <Form.Label style={{ color: "#E7A572" }}>Property Value</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter Property Value"
