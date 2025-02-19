@@ -30,10 +30,11 @@ class Filters extends BaseFilters
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'cors'          => Cors::class,
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'cors' => \App\Filters\CorsFilter::class,
+        // 'cors'          => Cors::class,
     ];
 
     /**
@@ -67,16 +68,20 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
+    // public array $globals = [
+    //     'before' => [
+    //         // 'honeypot',
+    //         // 'csrf',
+    //         // 'invalidchars',
+    //     ],
+    //     'after' => [
+    //         // 'honeypot',
+    //         // 'secureheaders',
+    //     ],
+    // ];
     public array $globals = [
-        'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
-        ],
-        'after' => [
-            // 'honeypot',
-            // 'secureheaders',
-        ],
+        'before' => ['cors'], // Jalankan filter sebelum request diproses
+        'after'  => ['cors'], // Jalankan filter setelah request diproses
     ];
 
     /**
