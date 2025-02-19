@@ -15,7 +15,9 @@ $routes->options('(:any)', function () {
 
 // rest-api
 $routes->get('/products', 'ProductRest::index');
-$routes->get('/products/(:num)', 'ProductRest::getById/$1');
+$routes->post('/products', 'ProductRest::addProduct');
+$routes->delete('/products/(:num)', 'ProductRest::deleteProduct/$1');
+$routes->get('/products/(:num)', 'ProductRest::getProductById/$1');
 $routes->get('/dynamic-products/(:num)', 'ProductRest::getDynamicProductById/$1');
 $routes->post('/dynamic-products', 'ProductRest::addDynamicProduct');
 $routes->put('/dynamic-products/(:num)', 'ProductRest::editDynamicProduct/$1');

@@ -50,7 +50,42 @@ class ProductRest extends Controller
         return $this->response->setJSON($static_products);
     }
 
-    public function getById($id)
+    public function addProduct()
+    {
+        $json = $this->request->getJSON();
+
+        if (!$json) {
+            return $this->fail('Invalid JSON input', 400);
+        }
+
+        $rules = [
+            'property_name'  => 'required',
+            'property_value' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $property_name = $json->property_name;
+        $property_value = $json->property_value;
+
+        $this->staticProductModel->insert([
+            'property_name' => $property_name,
+            'property_value' => $property_value
+        ]);
+
+        $insertedId = $this->staticProductModel->insertID(); // Ambil ID yang baru saja dimasukkan
+
+        $response = $this->staticProductModel->find($insertedId);
+
+        $this->redis->del('static_products:all');
+        $this->redis->setex("static_products:$insertedId", 600, json_encode($response));
+
+        return $this->response->setJSON($response);
+    }
+
+    public function getProductById($id)
     {
 
         $cacheKey = "static_products:$id";
@@ -68,6 +103,22 @@ class ProductRest extends Controller
         }
 
         return $this->response->setJSON($static_product);
+    }
+
+    public function deleteProduct($id)
+    {
+
+        $static_product = $this->staticProductModel->where('product_id', $id)->first();
+        if (!$static_product) {
+            throw new FileNotFoundException('product tidak ditemukan');
+        }
+
+        $this->redis->del('static_products:all');
+        $this->redis->del("static_products:$id");
+
+        $this->staticProductModel->delete($id);
+
+        return $this->response->setJSON('Delete succesfully');
     }
 
     public function addDynamicProduct()
